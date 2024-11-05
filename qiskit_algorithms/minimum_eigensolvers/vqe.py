@@ -262,12 +262,17 @@ class VQE(VariationalAlgorithm, MinimumEigensolver):
             batch_size = len(parameters)
 
             try:
-                job = self.estimator.run(batch_size * [ansatz], batch_size * [operator], parameters)
+                # EstimatorV1
+                # job = self.estimator.run(batch_size * [ansatz], batch_size * [operator], parameters)
+                # estimator_result = job.result()
+                # EstimatorV2
+                job = self.estimator.run(batch_size * [[ansatz, operator, parameters]])
                 estimator_result = job.result()
             except Exception as exc:
                 raise AlgorithmError("The primitive job to evaluate the energy failed!") from exc
 
-            values = estimator_result.values
+            # values = estimator_result.values # 1D array of all the estimator values over batch_size runs
+            values = estimator_result[0].data.evs
 
             if self.callback is not None:
                 metadata = estimator_result.metadata
